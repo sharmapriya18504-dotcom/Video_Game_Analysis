@@ -17,12 +17,6 @@ It provides insights into game popularity, user behavior, and platform performan
 
 ## 📊 Power BI Dashboard
 
-### 🔍 Preview
-![Dashboard](screenshots/dashboard.png)
-
-### 🌐 Live Dashboard
-👉 [View Dashboard](https://app.powerbi.com/view?r=YOUR_LINK)
-
 ### 📄 PDF Report
 👉 [Download Dashboard](Dashboard.pdf)
 
