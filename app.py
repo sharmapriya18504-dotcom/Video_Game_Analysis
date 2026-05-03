@@ -5,49 +5,34 @@ import matplotlib.pyplot as plt
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="Video Game Analysis", layout="wide")
 
-# ---------------- DARK UI STYLE ----------------
+# ---------------- DARK UI ----------------
 st.markdown("""
 <style>
-
-/* Main background */
 .stApp {
     background-color: #0f172a;
 }
 
-/* Main container */
 .block-container {
     background-color: #111827;
     padding: 2rem;
     border-radius: 15px;
 }
 
-/* Text */
-h1, h2, h3, h4 {
+h1, h2, h3 {
     color: #e5e7eb;
 }
 
-/* Paragraph text */
 p, span, label {
     color: #d1d5db !important;
 }
 
-/* Sidebar */
 section[data-testid="stSidebar"] {
     background-color: #020617;
 }
 
-/* Sidebar text */
 section[data-testid="stSidebar"] * {
-    color: #e5e7eb !important;
+    color: white !important;
 }
-
-/* Buttons */
-.stButton>button {
-    background-color: #2563eb;
-    color: white;
-    border-radius: 8px;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -78,22 +63,21 @@ if section == "🏠 Home":
 
     st.markdown("## 📌 Project Introduction")
     st.write("""
-    This project analyzes video game data including sales, ratings, and user engagement.
-    It combines multiple datasets and provides meaningful insights using Python,
+    This project analyzes video game sales, ratings, and engagement data.
+    It combines multiple datasets and provides insights using Python,
     MySQL, Power BI, and Streamlit.
     """)
 
-    st.markdown("## 🎯 Project Objectives")
+    st.markdown("## 🎯 Objectives")
     st.markdown("""
     - Analyze global and regional sales trends  
-    - Identify top-performing genres and publishers  
-    - Study relationship between ratings and sales  
-    - Understand user engagement (wishlist, plays)  
-    - Build interactive dashboards  
+    - Identify top genres and publishers  
+    - Study rating vs sales relationship  
+    - Understand user engagement  
     """)
 
     st.markdown("## 🔄 Workflow")
-    st.info("Data Cleaning ➝ Merging ➝ MySQL ➝ EDA ➝ Power BI ➝ Streamlit")
+    st.info("Cleaning → Merging → SQL → EDA → Power BI → Streamlit")
 
     col1, col2, col3 = st.columns(3)
     col1.metric("🎮 Total Games", len(df))
@@ -102,7 +86,7 @@ if section == "🏠 Home":
 
 # ---------------- DASHBOARD ----------------
 elif section == "📊 Dashboard":
-    st.title("📊 Key Insights")
+    st.title("📊 Dashboard")
 
     col1, col2 = st.columns(2)
 
@@ -120,26 +104,79 @@ elif section == "📊 Dashboard":
 elif section == "📈 EDA Analysis":
     st.title("📈 EDA Analysis")
 
-    st.subheader("⭐ Rating vs Global Sales")
-    fig, ax = plt.subplots()
-    ax.scatter(df['rating'], df['global_sales'])
-    ax.set_facecolor("#111827")
-    fig.patch.set_facecolor("#111827")
-    st.pyplot(fig)
+    analysis_type = st.selectbox(
+        "Select Analysis",
+        ["Rating vs Sales", "Wishlist vs Sales", "Year vs Sales"]
+    )
 
-    st.subheader("💖 Wishlist vs Sales")
-    fig, ax = plt.subplots()
-    ax.scatter(df['wishlist'], df['global_sales'])
-    ax.set_facecolor("#111827")
-    fig.patch.set_facecolor("#111827")
-    st.pyplot(fig)
+    if analysis_type == "Rating vs Sales":
+        fig, ax = plt.subplots()
+        ax.scatter(df['rating'], df['global_sales'])
+        ax.set_facecolor("#111827")
+        fig.patch.set_facecolor("#111827")
+        st.pyplot(fig)
+
+    elif analysis_type == "Wishlist vs Sales":
+        fig, ax = plt.subplots()
+        ax.scatter(df['wishlist'], df['global_sales'])
+        ax.set_facecolor("#111827")
+        fig.patch.set_facecolor("#111827")
+        st.pyplot(fig)
+
+    elif analysis_type == "Year vs Sales":
+        if "year" in df.columns:
+            year_sales = df.groupby("year")["global_sales"].sum()
+            st.line_chart(year_sales)
 
 # ---------------- DATASET ----------------
 elif section == "📂 Dataset":
-    st.title("📂 Dataset")
+    st.title("📂 Dataset Explorer")
 
     st.write("Shape:", df.shape)
-    st.dataframe(df.head(20))
+
+    # 🔍 Search box
+    search = st.text_input("🔍 Search Game Name")
+
+    # 🎛 Filters
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if "genre" in df.columns:
+            genre = st.selectbox("Select Genre", ["All"] + list(df['genre'].dropna().unique()))
+        else:
+            genre = "All"
+
+    with col2:
+        if "year" in df.columns:
+            year = st.selectbox("Select Year", ["All"] + sorted(df['year'].dropna().unique().tolist()))
+        else:
+            year = "All"
+
+    # 🔝 Top N selector
+    top_n = st.slider("Select Top N Rows", 5, 100, 20)
+
+    # Apply filters
+    filtered_df = df.copy()
+
+    if search:
+        filtered_df = filtered_df[filtered_df['name'].str.lower().str.contains(search.lower())]
+
+    if genre != "All":
+        filtered_df = filtered_df[filtered_df['genre'] == genre]
+
+    if year != "All":
+        filtered_df = filtered_df[filtered_df['year'] == year]
+
+    st.subheader("📄 Filtered Data")
+    st.dataframe(filtered_df.head(top_n))
+
+    # Download
+    st.download_button(
+        "📥 Download Filtered Data",
+        filtered_df.to_csv(index=False),
+        "filtered_data.csv",
+        mime="text/csv"
+    )
 
 # ---------------- POWER BI ----------------
 elif section == "📄 Power BI":
@@ -177,10 +214,7 @@ elif section == "👩‍💻 About":
     - Python
     - MySQL
     - Power BI
-    - Streamlit
-
-    🚀 Project:
-    Video Game Analysis Dashboard
+    - Streamlit  
     """)
 
 # ---------------- FOOTER ----------------
