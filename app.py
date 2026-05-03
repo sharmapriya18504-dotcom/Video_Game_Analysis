@@ -127,23 +127,32 @@ elif section == "📄 Power BI + PDF":
 
     st.info("Below is the exported Power BI dashboard (PDF view)")
 
-    # -------- PDF FIX --------
-    def show_pdf(file):
-        with open(file, "rb") as f:
-            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+    import base64
+
+    try:
+        with open("Dashboard.pdf", "rb") as f:
+            pdf_bytes = f.read()
+            base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
 
         pdf_display = f"""
-        <iframe src="data:application/pdf;base64,{base64_pdf}" 
-        width="100%" height="700" type="application/pdf"></iframe>
+        <embed 
+            src="data:application/pdf;base64,{base64_pdf}" 
+            width="100%" 
+            height="700px" 
+            type="application/pdf">
+        </embed>
         """
 
         st.markdown(pdf_display, unsafe_allow_html=True)
 
-    show_pdf("Dashboard.pdf")
+        st.download_button(
+            label="📥 Download PDF",
+            data=pdf_bytes,
+            file_name="Dashboard.pdf"
+        )
 
-    # Download button
-    with open("Dashboard.pdf", "rb") as f:
-        st.download_button("📥 Download PDF", f, "Dashboard.pdf")
+    except:
+        st.error("⚠️ PDF file not found! Make sure Dashboard.pdf is uploaded in GitHub.")
 
 # ---------------- ABOUT ----------------
 elif section == "👩‍💻 About Me":
