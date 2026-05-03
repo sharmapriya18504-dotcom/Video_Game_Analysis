@@ -5,20 +5,49 @@ import matplotlib.pyplot as plt
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="Video Game Analysis", layout="wide")
 
-# ---------------- LIGHT THEME STYLE ----------------
+# ---------------- DARK UI STYLE ----------------
 st.markdown("""
 <style>
+
+/* Main background */
 .stApp {
-    background: linear-gradient(to right, #e3f2fd, #ffffff);
+    background-color: #0f172a;
 }
 
-h1, h2, h3 {
-    color: #0d47a1;
+/* Main container */
+.block-container {
+    background-color: #111827;
+    padding: 2rem;
+    border-radius: 15px;
 }
 
-.css-1d391kg {
-    background-color: #ffffff !important;
+/* Text */
+h1, h2, h3, h4 {
+    color: #e5e7eb;
 }
+
+/* Paragraph text */
+p, span, label {
+    color: #d1d5db !important;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #020617;
+}
+
+/* Sidebar text */
+section[data-testid="stSidebar"] * {
+    color: #e5e7eb !important;
+}
+
+/* Buttons */
+.stButton>button {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 8px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -60,24 +89,20 @@ if section == "🏠 Home":
     - Identify top-performing genres and publishers  
     - Study relationship between ratings and sales  
     - Understand user engagement (wishlist, plays)  
-    - Build interactive dashboards for better insights  
+    - Build interactive dashboards  
     """)
 
-    st.markdown("## 🔄 Project Workflow")
-    st.info("""
-    Data Cleaning ➝ Data Merging ➝ MySQL ➝ EDA ➝ Power BI ➝ Streamlit Dashboard
-    """)
+    st.markdown("## 🔄 Workflow")
+    st.info("Data Cleaning ➝ Merging ➝ MySQL ➝ EDA ➝ Power BI ➝ Streamlit")
 
-    # Quick stats
     col1, col2, col3 = st.columns(3)
     col1.metric("🎮 Total Games", len(df))
     col2.metric("⭐ Avg Rating", round(df['rating'].mean(),2))
     col3.metric("💰 Total Sales", round(df['global_sales'].sum(),2))
 
-
 # ---------------- DASHBOARD ----------------
 elif section == "📊 Dashboard":
-    st.title("📊 Key Insights Dashboard")
+    st.title("📊 Key Insights")
 
     col1, col2 = st.columns(2)
 
@@ -91,7 +116,6 @@ elif section == "📊 Dashboard":
         region_sales = df[['na_sales','eu_sales','jp_sales']].sum()
         st.bar_chart(region_sales)
 
-
 # ---------------- EDA ----------------
 elif section == "📈 EDA Analysis":
     st.title("📈 EDA Analysis")
@@ -99,21 +123,23 @@ elif section == "📈 EDA Analysis":
     st.subheader("⭐ Rating vs Global Sales")
     fig, ax = plt.subplots()
     ax.scatter(df['rating'], df['global_sales'])
+    ax.set_facecolor("#111827")
+    fig.patch.set_facecolor("#111827")
     st.pyplot(fig)
 
     st.subheader("💖 Wishlist vs Sales")
     fig, ax = plt.subplots()
     ax.scatter(df['wishlist'], df['global_sales'])
+    ax.set_facecolor("#111827")
+    fig.patch.set_facecolor("#111827")
     st.pyplot(fig)
-
 
 # ---------------- DATASET ----------------
 elif section == "📂 Dataset":
-    st.title("📂 Dataset Overview")
+    st.title("📂 Dataset")
 
     st.write("Shape:", df.shape)
     st.dataframe(df.head(20))
-
 
 # ---------------- POWER BI ----------------
 elif section == "📄 Power BI":
@@ -138,7 +164,6 @@ elif section == "📄 Power BI":
     with col2:
         pub = df.groupby("publisher")["global_sales"].sum().sort_values(ascending=False).head(10)
         st.bar_chart(pub)
-
 
 # ---------------- ABOUT ----------------
 elif section == "👩‍💻 About":
