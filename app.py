@@ -30,25 +30,22 @@ df = load_data()
 if section == "🏠 Home":
     st.title("🎮 Video Game Analysis Dashboard")
 
-    st.markdown("## 📌 Project Introduction")
-    st.write("""
-    This project analyzes video game sales and engagement data to understand trends,
-    user behavior, and platform performance. It combines multiple datasets and uses
-    Python, MySQL, Power BI, and Streamlit for complete analysis.
+    st.markdown("### 📌 Project Introduction")
+    st.info("Analyze video game sales, ratings, and user engagement trends using Python, MySQL, Power BI, and Streamlit.")
+
+    st.markdown("### 🎯 Objectives")
+    st.success("""
+    ✔ Analyze sales trends  
+    ✔ Identify top genres & platforms  
+    ✔ Study user engagement  
+    ✔ Build interactive dashboards  
     """)
 
-    st.markdown("## 🎯 Objectives")
-    st.markdown("""
-    - Analyze global and regional sales trends  
-    - Identify top-performing genres and platforms  
-    - Study user engagement (ratings, wishlist, plays)  
-    - Build interactive dashboards for insights  
-    """)
+    st.markdown("### 🔄 Project Flow")
+    st.code("Data Cleaning ➝ Merging ➝ MySQL ➝ EDA ➝ Power BI ➝ Streamlit")
 
-    st.markdown("## 🔄 Project Flow")
-    st.write("""
-    Data Cleaning ➝ Data Merging ➝ MySQL Storage ➝ EDA ➝ Power BI ➝ Streamlit Dashboard
-    """)
+    st.markdown("---")
+    st.image("https://cdn-icons-png.flaticon.com/512/686/686589.png", width=120)
 
 # ---------------- DASHBOARD ----------------
 elif section == "📊 Dashboard":
@@ -78,90 +75,73 @@ elif section == "📊 Dashboard":
 elif section == "📈 EDA Analysis":
     st.title("📈 Exploratory Data Analysis")
 
-    # Rating vs Sales
     st.subheader("⭐ Rating vs Global Sales")
     fig, ax = plt.subplots()
     ax.scatter(df['rating'], df['global_sales'])
-    ax.set_xlabel("Rating")
-    ax.set_ylabel("Global Sales")
     st.pyplot(fig)
 
-    # Wishlist vs Sales
     st.subheader("💖 Wishlist vs Sales")
     fig, ax = plt.subplots()
     ax.scatter(df['wishlist'], df['global_sales'])
-    ax.set_xlabel("Wishlist")
-    ax.set_ylabel("Global Sales")
     st.pyplot(fig)
 
-    # Year vs Sales
-    st.subheader("📅 Year vs Global Sales")
+    st.subheader("📅 Year vs Sales")
     if 'year' in df.columns:
         year_sales = df.groupby("year")["global_sales"].sum()
         st.line_chart(year_sales)
 
-    # Top Publishers
     st.subheader("🏢 Top Publishers")
     pub_sales = df.groupby("publisher")["global_sales"].sum().sort_values(ascending=False).head(10)
     st.bar_chart(pub_sales)
 
-    # Insights
     st.markdown("### 📌 Insights")
-    st.write("""
-    - Higher ratings generally lead to higher sales  
-    - Wishlist is positively correlated with sales  
-    - Certain genres dominate global market  
+    st.info("""
+    - Higher ratings → higher sales  
+    - Wishlist ↑ → Sales ↑  
+    - Action & Adventure dominate  
     """)
 
 # ---------------- DATASET ----------------
 elif section == "📂 Dataset":
     st.title("📂 Dataset Exploration")
 
-    st.subheader("🔍 Dataset Overview")
-    st.write("Rows:", df.shape[0], "Columns:", df.shape[1])
+    st.write("Rows:", df.shape[0], "| Columns:", df.shape[1])
 
     st.subheader("📊 Column Info")
     st.write(df.dtypes)
 
-    st.subheader("📈 Statistical Summary")
+    st.subheader("📈 Summary")
     st.write(df.describe())
 
     st.subheader("📄 Sample Data")
     st.dataframe(df.head(20))
 
-    # Filter option
-    st.subheader("🎛 Filter by Genre")
     if "genre" in df.columns:
-        selected_genre = st.selectbox("Select Genre", df['genre'].dropna().unique())
-        filtered_df = df[df['genre'] == selected_genre]
-        st.dataframe(filtered_df.head(10))
+        st.subheader("🎛 Filter by Genre")
+        selected = st.selectbox("Select Genre", df['genre'].dropna().unique())
+        st.dataframe(df[df['genre'] == selected].head(10))
 
-# ---------------- PDF ----------------
+# ---------------- PDF + POWER BI ----------------
 elif section == "📄 Power BI + PDF":
-    st.title("📄 Dashboard PDF View")
-    def show_pdf(file_path):
-    with open(file_path, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+    st.title("📊 Power BI + PDF Dashboard")
 
-    pdf_display = f"""
-        <iframe 
-            src="data:application/pdf;base64,{base64_pdf}" 
-            width="100%" 
-            height="600px" 
-            type="application/pdf">
-        </iframe>
-    """
+    st.info("Below is the exported Power BI dashboard (PDF view)")
 
-    st.markdown(pdf_display, unsafe_allow_html=True)
+    # -------- PDF FIX --------
+    def show_pdf(file):
+        with open(file, "rb") as f:
+            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
 
+        pdf_display = f"""
+        <iframe src="data:application/pdf;base64,{base64_pdf}" 
+        width="100%" height="700" type="application/pdf"></iframe>
+        """
 
-# 👉 USE THIS
-st.title("📄 Dashboard PDF View")
+        st.markdown(pdf_display, unsafe_allow_html=True)
 
-show_pdf("Dashboard.pdf")
+    show_pdf("Dashboard.pdf")
 
-    display_pdf("Dashboard.pdf")
-
+    # Download button
     with open("Dashboard.pdf", "rb") as f:
         st.download_button("📥 Download PDF", f, "Dashboard.pdf")
 
@@ -182,4 +162,7 @@ elif section == "👩‍💻 About Me":
     ### 📊 Project:
     Video Game Analysis Dashboard
     """)
+
+# ---------------- FOOTER ----------------
+st.sidebar.success("🚀 Developed by Priya Sharma")
 
