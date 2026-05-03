@@ -5,17 +5,33 @@ import matplotlib.pyplot as plt
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="Video Game Analysis", layout="wide")
 
-# ---------------- STYLE ----------------
+# ---------------- LIGHT THEME STYLE ----------------
 st.markdown("""
 <style>
-.main {
-    background: linear-gradient(to right, #1f4037, #99f2c8);
+.stApp {
+    background: linear-gradient(to right, #e3f2fd, #ffffff);
 }
+
 h1, h2, h3 {
-    color: #ffffff;
+    color: #0d47a1;
+}
+
+.css-1d391kg {
+    background-color: #ffffff !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
+# ---------------- SIDEBAR ----------------
+st.sidebar.title("🎮 Navigation")
+section = st.sidebar.radio("Go To", [
+    "🏠 Home",
+    "📊 Dashboard",
+    "📈 EDA Analysis",
+    "📂 Dataset",
+    "📄 Power BI",
+    "👩‍💻 About"
+])
 
 # ---------------- LOAD DATA ----------------
 @st.cache_data
@@ -27,30 +43,41 @@ def load_data():
 
 df = load_data()
 
-# ---------------- NAV ----------------
-tabs = st.tabs([
-    "🏠 Home",
-    "📊 Dashboard",
-    "📈 EDA",
-    "📂 Dataset",
-    "📄 Power BI",
-    "👩 About"
-])
-
 # ---------------- HOME ----------------
-with tabs[0]:
+if section == "🏠 Home":
     st.title("🎮 Video Game Analysis Dashboard")
 
-    st.info("Interactive dashboard to explore video game trends, sales & engagement 🚀")
+    st.markdown("## 📌 Project Introduction")
+    st.write("""
+    This project analyzes video game data including sales, ratings, and user engagement.
+    It combines multiple datasets and provides meaningful insights using Python,
+    MySQL, Power BI, and Streamlit.
+    """)
 
+    st.markdown("## 🎯 Project Objectives")
+    st.markdown("""
+    - Analyze global and regional sales trends  
+    - Identify top-performing genres and publishers  
+    - Study relationship between ratings and sales  
+    - Understand user engagement (wishlist, plays)  
+    - Build interactive dashboards for better insights  
+    """)
+
+    st.markdown("## 🔄 Project Workflow")
+    st.info("""
+    Data Cleaning ➝ Data Merging ➝ MySQL ➝ EDA ➝ Power BI ➝ Streamlit Dashboard
+    """)
+
+    # Quick stats
     col1, col2, col3 = st.columns(3)
     col1.metric("🎮 Total Games", len(df))
     col2.metric("⭐ Avg Rating", round(df['rating'].mean(),2))
     col3.metric("💰 Total Sales", round(df['global_sales'].sum(),2))
 
+
 # ---------------- DASHBOARD ----------------
-with tabs[1]:
-    st.title("📊 Dashboard")
+elif section == "📊 Dashboard":
+    st.title("📊 Key Insights Dashboard")
 
     col1, col2 = st.columns(2)
 
@@ -64,51 +91,58 @@ with tabs[1]:
         region_sales = df[['na_sales','eu_sales','jp_sales']].sum()
         st.bar_chart(region_sales)
 
+
 # ---------------- EDA ----------------
-with tabs[2]:
+elif section == "📈 EDA Analysis":
     st.title("📈 EDA Analysis")
 
+    st.subheader("⭐ Rating vs Global Sales")
     fig, ax = plt.subplots()
     ax.scatter(df['rating'], df['global_sales'])
-    ax.set_title("Rating vs Global Sales")
     st.pyplot(fig)
 
-# ---------------- DATASET ----------------
-with tabs[3]:
-    st.title("📂 Dataset")
+    st.subheader("💖 Wishlist vs Sales")
+    fig, ax = plt.subplots()
+    ax.scatter(df['wishlist'], df['global_sales'])
+    st.pyplot(fig)
 
-    st.dataframe(df.head(50))
+
+# ---------------- DATASET ----------------
+elif section == "📂 Dataset":
+    st.title("📂 Dataset Overview")
+
+    st.write("Shape:", df.shape)
+    st.dataframe(df.head(20))
+
 
 # ---------------- POWER BI ----------------
-with tabs[4]:
-    st.title("📄 Power BI Report Section")
+elif section == "📄 Power BI":
+    st.title("📄 Power BI Dashboard")
 
-    st.success("📥 Download Full Power BI Dashboard Below")
+    st.success("📥 Download Full Dashboard")
 
-    # Download button
     with open("Dashboard.pdf", "rb") as f:
-        st.download_button("📥 Download Dashboard PDF", f, "Dashboard.pdf")
+        st.download_button("Download PDF", f, "Dashboard.pdf")
 
     st.divider()
 
-    st.subheader("📊 Sample Insights (Power BI Style)")
+    st.subheader("📊 Sample Insights")
 
     col1, col2 = st.columns(2)
 
     with col1:
-        st.write("📈 Sales Trend by Year")
         if "year" in df.columns:
             year_sales = df.groupby("year")["global_sales"].sum()
             st.line_chart(year_sales)
 
     with col2:
-        st.write("🏆 Top Publishers")
         pub = df.groupby("publisher")["global_sales"].sum().sort_values(ascending=False).head(10)
         st.bar_chart(pub)
 
+
 # ---------------- ABOUT ----------------
-with tabs[5]:
-    st.title("👩 About Me")
+elif section == "👩‍💻 About":
+    st.title("👩‍💻 About Me")
 
     st.markdown("""
     **Priya Sharma**  
@@ -123,3 +157,6 @@ with tabs[5]:
     🚀 Project:
     Video Game Analysis Dashboard
     """)
+
+# ---------------- FOOTER ----------------
+st.sidebar.success("🚀 Developed by Priya Sharma")
