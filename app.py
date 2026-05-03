@@ -1,10 +1,21 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import base64
 
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="Video Game Analysis", layout="wide")
+
+# ---------------- STYLE ----------------
+st.markdown("""
+<style>
+.main {
+    background: linear-gradient(to right, #1f4037, #99f2c8);
+}
+h1, h2, h3 {
+    color: #ffffff;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ---------------- LOAD DATA ----------------
 @st.cache_data
@@ -16,24 +27,21 @@ def load_data():
 
 df = load_data()
 
-# ---------------- NAVBAR ----------------
+# ---------------- NAV ----------------
 tabs = st.tabs([
     "🏠 Home",
     "📊 Dashboard",
     "📈 EDA",
     "📂 Dataset",
-    "📄 Report",
+    "📄 Power BI",
     "👩 About"
 ])
 
 # ---------------- HOME ----------------
 with tabs[0]:
-    st.markdown("""
-    <h1 style='text-align:center;'>🎮 Video Game Analysis Website</h1>
-    <p style='text-align:center;'>Interactive Data Analytics Platform</p>
-    """, unsafe_allow_html=True)
+    st.title("🎮 Video Game Analysis Dashboard")
 
-    st.info("Explore video game trends, sales, and engagement with interactive tools.")
+    st.info("Interactive dashboard to explore video game trends, sales & engagement 🚀")
 
     col1, col2, col3 = st.columns(3)
     col1.metric("🎮 Total Games", len(df))
@@ -42,99 +50,61 @@ with tabs[0]:
 
 # ---------------- DASHBOARD ----------------
 with tabs[1]:
-    st.title("📊 Interactive Dashboard")
+    st.title("📊 Dashboard")
 
-    # 🔥 USER FILTERS
-    col1, col2, col3 = st.columns(3)
-
-    genre = col1.selectbox("Select Genre", ["All"] + list(df['genre'].unique()))
-    year = col2.selectbox("Select Year", ["All"] + list(df['year'].unique()))
-    platform = col3.selectbox("Select Platform", ["All"] + list(df['platform'].unique()))
-
-    filtered_df = df.copy()
-
-    if genre != "All":
-        filtered_df = filtered_df[filtered_df['genre'] == genre]
-
-    if year != "All":
-        filtered_df = filtered_df[filtered_df['year'] == year]
-
-    if platform != "All":
-        filtered_df = filtered_df[filtered_df['platform'] == platform]
-
-    st.success(f"Filtered Data: {len(filtered_df)} records")
-
-    # Charts
     col1, col2 = st.columns(2)
 
     with col1:
         st.subheader("🎯 Top Genres")
-        genre_sales = filtered_df.groupby("genre")["global_sales"].sum().sort_values(ascending=False).head(10)
+        genre_sales = df.groupby("genre")["global_sales"].sum().sort_values(ascending=False).head(10)
         st.bar_chart(genre_sales)
 
     with col2:
         st.subheader("🌍 Regional Sales")
-        region_sales = filtered_df[['na_sales','eu_sales','jp_sales']].sum()
+        region_sales = df[['na_sales','eu_sales','jp_sales']].sum()
         st.bar_chart(region_sales)
 
 # ---------------- EDA ----------------
 with tabs[2]:
     st.title("📈 EDA Analysis")
 
-    chart_type = st.selectbox("Choose Chart", [
-        "Rating vs Sales",
-        "Wishlist vs Sales",
-        "Year vs Sales"
-    ])
+    fig, ax = plt.subplots()
+    ax.scatter(df['rating'], df['global_sales'])
+    ax.set_title("Rating vs Global Sales")
+    st.pyplot(fig)
 
-    if chart_type == "Rating vs Sales":
-        fig, ax = plt.subplots()
-        ax.scatter(df['rating'], df['global_sales'])
-        st.pyplot(fig)
+# ---------------- DATASET ----------------
+with tabs[3]:
+    st.title("📂 Dataset")
 
-    elif chart_type == "Wishlist vs Sales":
-        fig, ax = plt.subplots()
-        ax.scatter(df['wishlist'], df['global_sales'])
-        st.pyplot(fig)
+    st.dataframe(df.head(50))
 
-    elif chart_type == "Year vs Sales":
+# ---------------- POWER BI ----------------
+with tabs[4]:
+    st.title("📄 Power BI Report Section")
+
+    st.success("📥 Download Full Power BI Dashboard Below")
+
+    # Download button
+    with open("Dashboard.pdf", "rb") as f:
+        st.download_button("📥 Download Dashboard PDF", f, "Dashboard.pdf")
+
+    st.divider()
+
+    st.subheader("📊 Sample Insights (Power BI Style)")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.write("📈 Sales Trend by Year")
         if "year" in df.columns:
             year_sales = df.groupby("year")["global_sales"].sum()
             st.line_chart(year_sales)
 
-# ---------------- DATASET ----------------
-with tabs[3]:
-    st.title("📂 Dataset Explorer")
-
-    st.dataframe(df)
-
-    st.download_button(
-        "📥 Download Dataset",
-        df.to_csv(index=False),
-        "dataset.csv"
-    )
-
-# ---------------- REPORT ----------------
-with tabs[4]:
-    st.title("📄 Power BI Report")
-
-    try:
-        with open("Dashboard.pdf", "rb") as f:
-            pdf_bytes = f.read()
-            base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
-
-        pdf_display = f"""
-        <embed src="data:application/pdf;base64,{base64_pdf}" 
-        width="100%" height="700px" type="application/pdf">
-        </embed>
-        """
-
-        st.markdown(pdf_display, unsafe_allow_html=True)
-
-        st.download_button("📥 Download PDF", pdf_bytes, "Dashboard.pdf")
-
-    except:
-        st.warning("PDF not loading. Please download.")
+    with col2:
+        st.write("🏆 Top Publishers")
+        pub = df.groupby("publisher")["global_sales"].sum().sort_values(ascending=False).head(10)
+        st.bar_chart(pub)
 
 # ---------------- ABOUT ----------------
 with tabs[5]:
@@ -144,12 +114,12 @@ with tabs[5]:
     **Priya Sharma**  
     🎓 B.Tech CSE  
 
-    ### 💻 Skills
+    💻 Skills:
     - Python
     - MySQL
     - Power BI
     - Streamlit
 
-    ### 🌐 Project
-    Video Game Analysis Website
+    🚀 Project:
+    Video Game Analysis Dashboard
     """)
