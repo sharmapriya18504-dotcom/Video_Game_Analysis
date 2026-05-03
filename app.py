@@ -140,16 +140,29 @@ elif section == "📂 Dataset":
 elif section == "📄 Power BI + PDF":
     st.title("📄 Dashboard PDF View")
 
-    def display_pdf(file):
-        with open(file, "rb") as f:
-            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+    import streamlit as st
+import base64
 
-        pdf_display = f"""
-        <iframe src="data:application/pdf;base64,{base64_pdf}" 
-        width="100%" height="700"></iframe>
-        """
+def show_pdf(file_path):
+    with open(file_path, "rb") as f:
+        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
 
-        st.markdown(pdf_display, unsafe_allow_html=True)
+    pdf_display = f"""
+        <iframe 
+            src="data:application/pdf;base64,{base64_pdf}" 
+            width="100%" 
+            height="600px" 
+            type="application/pdf">
+        </iframe>
+    """
+
+    st.markdown(pdf_display, unsafe_allow_html=True)
+
+
+# 👉 USE THIS
+st.title("📄 Dashboard PDF View")
+
+show_pdf("Dashboard.pdf")
 
     display_pdf("Dashboard.pdf")
 
