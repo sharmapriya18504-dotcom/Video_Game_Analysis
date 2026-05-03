@@ -129,30 +129,22 @@ elif section == "📄 Power BI + PDF":
 
     import base64
 
-    try:
-        with open("Dashboard.pdf", "rb") as f:
-            pdf_bytes = f.read()
-            base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
+    with open("Dashboard.pdf", "rb") as f:
+        pdf_bytes = f.read()
+        base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
 
-        pdf_display = f"""
-        <embed 
-            src="data:application/pdf;base64,{base64_pdf}" 
-            width="100%" 
-            height="700px" 
-            type="application/pdf">
-        </embed>
-        """
+    pdf_display = f"""
+    <embed src="data:application/pdf;base64,{base64_pdf}" 
+    width="100%" height="700px" type="application/pdf">
+    """
 
-        st.markdown(pdf_display, unsafe_allow_html=True)
+    st.markdown(pdf_display, unsafe_allow_html=True)
 
-        st.download_button(
-            label="📥 Download PDF",
-            data=pdf_bytes,
-            file_name="Dashboard.pdf"
-        )
-
-    except:
-        st.error("⚠️ PDF file not found! Make sure Dashboard.pdf is uploaded in GitHub.")
+    st.download_button(
+        "📥 Download PDF",
+        pdf_bytes,
+        "Dashboard.pdf"
+    )
 
 # ---------------- ABOUT ----------------
 elif section == "👩‍💻 About Me":
