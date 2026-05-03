@@ -139,11 +139,7 @@ elif section == "📂 Dataset":
 # ---------------- PDF ----------------
 elif section == "📄 Power BI + PDF":
     st.title("📄 Dashboard PDF View")
-
-    import streamlit as st
-import base64
-
-def show_pdf(file_path):
+    def show_pdf(file_path):
     with open(file_path, "rb") as f:
         base64_pdf = base64.b64encode(f.read()).decode('utf-8')
 
